@@ -1,0 +1,95 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build and Run Inventory App",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"run"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/InventoryApp.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"group": "build",
+			"presentation": {
+				"reveal": "silent"
+			},
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "publish",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"publish",
+				"${workspaceFolder}/InventoryApp.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"group": "build",
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "restore",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"restore",
+				"${workspaceFolder}/InventoryApp.csproj"
+			],
+			"group": "build",
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "ef-migrations-add",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"ef",
+				"migrations",
+				"add",
+				"InitialCreate"
+			],
+			"group": "build",
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "ef-database-update",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"ef",
+				"database",
+				"update"
+			],
+			"group": "build",
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": "$msCompile"
+		}
+	]
+}
