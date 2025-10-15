@@ -67,7 +67,7 @@ bld/
 *.nuget.targets
 
 # ASP.NET Core
-wwwroot/lib/
+# wwwroot/lib/ - REMOVED to include Bootstrap libraries for deployment
 
 # Node.js (if using client-side packages)
 node_modules/
