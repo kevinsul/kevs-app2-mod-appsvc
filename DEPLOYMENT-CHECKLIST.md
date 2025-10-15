@@ -40,7 +40,7 @@ ALTER ROLE db_datawriter ADD MEMBER [WEB-SERVER-NAME\IIS AppPool\InventoryAppPoo
 
 **1. Publish Application:**
 ```powershell
-dotnet publish InventoryApp.csproj -c Release -o .\publish --self-contained false
+dotnet publish kevs-app2.sln -c Release -o .\publish --self-contained false
 ```
 
 **2. Copy Files to Web Server:**

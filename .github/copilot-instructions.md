@@ -49,18 +49,18 @@ This is a complete ASP.NET Core MVC inventory management application with the fo
 - ✅ .vscode/launch.json - Debug configuration
 
 ### Next Steps for Deployment
-1. Restore NuGet packages: `dotnet restore`
-2. Build project: `dotnet build`
+1. Restore NuGet packages: `dotnet restore kevs-app2.sln`
+2. Build project: `dotnet build kevs-app2.sln`
 3. Set up database using provided SQL script
 4. Update connection string in appsettings.json
 5. Run migrations: `dotnet ef database update`
-6. Publish for IIS: `dotnet publish -c Release`
+6. Publish for IIS: `dotnet publish kevs-app2.sln -c Release`
 7. Follow DEPLOYMENT.md guide for IIS setup
 
 ### Development Commands
-- Build: `dotnet build`
-- Run: `dotnet run`
-- Publish: `dotnet publish -c Release`
+- Build: `dotnet build kevs-app2.sln`
+- Run: `dotnet run --project InventoryApp.csproj`
+- Publish: `dotnet publish kevs-app2.sln -c Release`
 - Add Migration: `dotnet ef migrations add InitialCreate`
 - Update Database: `dotnet ef database update`
 

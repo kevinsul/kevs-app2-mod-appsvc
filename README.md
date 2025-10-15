@@ -47,7 +47,39 @@ For Azure SQL Database:
 Server=tcp:yourserver.database.windows.net,1433;Initial Catalog=InventoryDB;Persist Security Info=False;User ID=yourusername;Password=yourpassword;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
 ```
 
-## Development Setup
+## 📁 Project Structure
+```
+c:\scratch\kevs-app2\
+├── Controllers/InventoryController.cs   # CRUD operations
+├── Models/InventoryItem.cs             # Data model
+├── Views/Inventory/                    # UI pages
+├── Data/InventoryContext.cs            # Entity Framework context
+├── Scripts/DatabaseSetup.sql           # Database creation script
+├── wwwroot/                           # Static files (CSS, JS)
+└── appsettings.Production.json         # Production configuration
+```
+
+## 🚀 Quick Start
+
+### Development Setup (Local)
+1. **Restore packages:**
+   ```bash
+   dotnet restore kevs-app2.sln
+   ```
+
+2. **Run the application:**
+   ```bash
+   dotnet run --project InventoryApp.csproj
+   ```
+   The app will start with an in-memory database and sample data.
+
+3. **Browse to:** `https://localhost:5001` or `http://localhost:5000`
+
+### Production Deployment
+1. **Publish the application:**
+   ```bash
+   dotnet publish kevs-app2.sln -c Release -o ./publish
+   ```
 
 ### Prerequisites
 - .NET 8.0 SDK

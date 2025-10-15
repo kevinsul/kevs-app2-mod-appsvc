@@ -26,10 +26,10 @@ On your development machine:
 cd c:\scratch\kevs-app2
 
 # Restore packages
-dotnet restore
+dotnet restore kevs-app2.sln
 
 # Publish the application for deployment
-dotnet publish InventoryApp.csproj -c Release -o .\publish --self-contained false
+dotnet publish kevs-app2.sln -c Release -o .\publish --self-contained false
 ```
 
 ### 2. Set Up the Database (SQL Server)

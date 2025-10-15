@@ -11,7 +11,7 @@
 
 #### 1. Restore Packages
 ```bash
-dotnet restore
+dotnet restore kevs-app2.sln
 ```
 
 #### 2. Update Database Connection
