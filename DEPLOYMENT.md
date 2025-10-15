@@ -25,26 +25,26 @@ On your development machine:
 # Navigate to project directory
 cd c:\scratch\kevs-app2
 
-# Restore packages (when network is available)
+# Restore packages
 dotnet restore
 
 # Publish the application for deployment
-dotnet publish -c Release -o .\publish --self-contained false
+dotnet publish InventoryApp.csproj -c Release -o .\publish --self-contained false
 ```
 
-### 2. Set Up the Database
+### 2. Set Up the Database (SQL Server)
 
-#### Option A: Using Entity Framework Migrations
-```powershell
-# Update connection string in appsettings.Production.json
-# Then run migrations
-dotnet ef database update --connection "YourProductionConnectionString"
-```
-
-#### Option B: Using SQL Script (Recommended for Production)
-1. Connect to your SQL Server using SQL Server Management Studio
+#### Option A: Using SQL Script (Recommended for Production)
+1. Connect to your **SQL Server** using SQL Server Management Studio
 2. Run the script located at `Scripts\DatabaseSetup.sql`
 3. Verify the database and tables were created successfully
+4. Create application login and grant permissions (see Security section below)
+
+#### Option B: Using Entity Framework Migrations
+```powershell
+# From development machine, targeting SQL Server
+dotnet ef database update --connection "Server=YOUR_SQL_SERVER;Database=InventoryDB;Trusted_Connection=true;TrustServerCertificate=true;"
+```
 
 ### 3. Configure IIS
 
@@ -70,12 +70,14 @@ dotnet ef database update --connection "YourProductionConnectionString"
 
 ### 4. Configure Connection String
 
+**CRITICAL: Update for your SQL Server**
+
 Create or update `appsettings.Production.json` in the deployed folder:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=YOUR_DATABASE_SERVER;Database=InventoryDB;Integrated Security=true;TrustServerCertificate=true;"
+    "DefaultConnection": "Server=YOUR_SQL_SERVER_NAME;Database=InventoryDB;Integrated Security=true;TrustServerCertificate=true;"
   },
   "Logging": {
     "LogLevel": {
@@ -86,39 +88,106 @@ Create or update `appsettings.Production.json` in the deployed folder:
 }
 ```
 
-#### Connection String Examples:
+#### Connection String Examples for Separate SQL Server:
 
 **Windows Authentication (Recommended):**
 ```
-Server=DB-SERVER-NAME;Database=InventoryDB;Integrated Security=true;TrustServerCertificate=true;
+Server=SQL-SERVER-NAME;Database=InventoryDB;Integrated Security=true;TrustServerCertificate=true;
 ```
 
 **SQL Server Authentication:**
 ```
-Server=DB-SERVER-NAME;Database=InventoryDB;User Id=your_username;Password=your_password;TrustServerCertificate=true;
+Server=SQL-SERVER-NAME;Database=InventoryDB;User Id=your_username;Password=your_password;TrustServerCertificate=true;
 ```
 
-**Azure SQL Database:**
+**SQL Server with Instance:**
 ```
-Server=tcp:yourserver.database.windows.net,1433;Initial Catalog=InventoryDB;Persist Security Info=False;User ID=your_username;Password=your_password;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+Server=SQL-SERVER-NAME\SQLEXPRESS;Database=InventoryDB;Integrated Security=true;TrustServerCertificate=true;
 ```
 
-### 5. Set Security Permissions
+**SQL Server with IP Address:**
+```
+Server=192.168.1.100,1433;Database=InventoryDB;Integrated Security=true;TrustServerCertificate=true;
+```
 
-#### File System Permissions
+### 5. Configure Web Server Environment
+
+**CRITICAL: Set Production Environment**
+
+Update your `web.config` in the deployed folder:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <location path="." inheritInChildApplications="false">
+    <system.webServer>
+      <handlers>
+        <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
+      </handlers>
+      <aspNetCore processPath=".\InventoryApp.exe" 
+                  stdoutLogEnabled="false" 
+                  stdoutLogFile=".\logs\stdout" 
+                  hostingModel="inprocess">
+        <environmentVariables>
+          <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
+        </environmentVariables>
+      </aspNetCore>
+    </system.webServer>
+  </location>
+</configuration>
+```
+
+### 6. Set Security Permissions
+
+#### File System Permissions (Web Server)
 1. Grant `IIS_IUSRS` read and execute permissions to the application folder
 2. Grant `IIS AppPool\InventoryAppPool` read and execute permissions to the application folder
 
 ```powershell
-# PowerShell commands to set permissions
+# PowerShell commands to set permissions on Web Server
 icacls "C:\inetpub\wwwroot\InventoryApp" /grant "IIS_IUSRS:(OI)(CI)(RX)"
 icacls "C:\inetpub\wwwroot\InventoryApp" /grant "IIS AppPool\InventoryAppPool:(OI)(CI)(RX)"
 ```
 
-#### Database Permissions
-1. Create a login for the application pool identity
-2. Grant `db_datareader` and `db_datawriter` roles
-3. Grant `db_ddladmin` role if using EF migrations in production
+#### Database Permissions (SQL Server)
+
+**CRITICAL FOR SEPARATE SQL SERVER SETUP:**
+
+1. **On SQL Server**, create a login for the web server application pool:
+
+```sql
+-- Option A: Windows Authentication (Web Server Machine Account)
+-- Replace 'WEB-SERVER-NAME' with your actual web server computer name
+CREATE LOGIN [WEB-SERVER-NAME\IIS AppPool\InventoryAppPool] FROM WINDOWS;
+
+-- Option B: Windows Authentication (Custom Service Account)
+-- If using a custom service account for the app pool
+CREATE LOGIN [DOMAIN\ServiceAccountName] FROM WINDOWS;
+
+-- Option C: SQL Server Authentication (create SQL user)
+CREATE LOGIN InventoryAppUser WITH PASSWORD = 'StrongPassword123!';
+```
+
+2. **Grant database permissions:**
+
+```sql
+USE InventoryDB;
+
+-- For Windows Authentication
+CREATE USER [WEB-SERVER-NAME\IIS AppPool\InventoryAppPool] FOR LOGIN [WEB-SERVER-NAME\IIS AppPool\InventoryAppPool];
+ALTER ROLE db_datareader ADD MEMBER [WEB-SERVER-NAME\IIS AppPool\InventoryAppPool];
+ALTER ROLE db_datawriter ADD MEMBER [WEB-SERVER-NAME\IIS AppPool\InventoryAppPool];
+
+-- For SQL Authentication
+CREATE USER InventoryAppUser FOR LOGIN InventoryAppUser;
+ALTER ROLE db_datareader ADD MEMBER InventoryAppUser;
+ALTER ROLE db_datawriter ADD MEMBER InventoryAppUser;
+```
+
+3. **Network Configuration:**
+   - Ensure SQL Server allows remote connections
+   - Configure Windows Firewall on SQL Server to allow port 1433
+   - Verify network connectivity from web server to SQL server
 
 ### 6. Configure HTTPS (Recommended)
 

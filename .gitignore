@@ -17,9 +17,10 @@ bld/
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 
-# Visual Studio Code
+# Visual Studio Code - Keep tasks and launch for development
 .vscode/settings.json
-.vscode/launch.json
+# .vscode/launch.json - KEEP for development setup
+# .vscode/tasks.json - KEEP for development setup
 .vscode/extensions.json
 .vscode/*.code-workspace
 
@@ -75,7 +76,7 @@ npm-debug.log*
 
 # Environment variables and secrets
 .env
-appsettings.Development.json
+# appsettings.Development.json - KEEP for deployment configuration
 appsettings.Local.json
 
 # Database
