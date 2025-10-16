@@ -1,7 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using InventoryApp.Data;
+using Azure.Identity;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Azure Key Vault configuration for non-development environments
+if (!builder.Environment.IsDevelopment())
+{
+    var keyVaultName = builder.Configuration["KeyVaultName"];
+    if (!string.IsNullOrEmpty(keyVaultName))
+    {
+        var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+        builder.Configuration.AddAzureKeyVault(
+            keyVaultUri,
+            new DefaultAzureCredential(),
+            new AzureKeyVaultConfigurationOptions());
+    }
+}
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -14,6 +30,7 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
+    // Connection string will be loaded from Azure Key Vault secret named "DefaultConnection"
     builder.Services.AddDbContext<InventoryContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
