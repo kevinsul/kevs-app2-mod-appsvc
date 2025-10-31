@@ -17,12 +17,11 @@ bld/
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 
-# Visual Studio Code - Keep tasks and launch for development
+# Visual Studio Code
 .vscode/settings.json
-# .vscode/launch.json - KEEP for development setup
-# .vscode/tasks.json - KEEP for development setup
 .vscode/extensions.json
 .vscode/*.code-workspace
+# Keep launch.json and tasks.json for development setup
 
 # User-specific files
 *.rsuser
@@ -67,8 +66,7 @@ bld/
 *.nuget.props
 *.nuget.targets
 
-# ASP.NET Core
-# wwwroot/lib/ - REMOVED to include Bootstrap libraries for deployment
+# ASP.NET Core - Keep wwwroot/lib/ for static dependencies
 
 # Node.js (if using client-side packages)
 node_modules/
@@ -76,13 +74,25 @@ npm-debug.log*
 
 # Environment variables and secrets
 .env
-# appsettings.Development.json - KEEP for deployment configuration
 appsettings.Local.json
 
-# Database
+# Azure deployment - Keep infrastructure but exclude environment-specific data
+.azure/**/
+!.azure/plan.copilot.md
+!.azure/architecture.copilot.md
+.appmod/
+
+# Publish profiles
+publish/
+*.pubxml
+*.publishsettings
+
+# Database files
 *.db
 *.sqlite
 *.sqlite3
+*.mdf
+*.ldf
 
 # OS generated files
 .DS_Store
@@ -97,6 +107,6 @@ Thumbs.db
 .idea/
 *.sln.iml
 
-# Local development database
-*.mdf
-*.ldf
+# Downloaded logs
+*.zip
+app-logs.zip

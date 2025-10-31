@@ -8,14 +8,25 @@ var builder = WebApplication.CreateBuilder(args);
 // Add Azure Key Vault configuration for non-development environments
 if (!builder.Environment.IsDevelopment())
 {
-    var keyVaultName = builder.Configuration["KeyVaultName"];
-    if (!string.IsNullOrEmpty(keyVaultName))
+    try
     {
-        var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
-        builder.Configuration.AddAzureKeyVault(
-            keyVaultUri,
-            new DefaultAzureCredential(),
-            new AzureKeyVaultConfigurationOptions());
+        var keyVaultName = builder.Configuration["KeyVaultName"];
+        
+        if (!string.IsNullOrEmpty(keyVaultName))
+        {
+            var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+            
+            var credential = new DefaultAzureCredential();
+            builder.Configuration.AddAzureKeyVault(
+                keyVaultUri,
+                credential,
+                new AzureKeyVaultConfigurationOptions());
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"ERROR configuring Key Vault: {ex.Message}");
+        // Don't throw - allow app to continue with connection string from app settings
     }
 }
 
@@ -30,9 +41,10 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    // Connection string will be loaded from Azure Key Vault secret named "DefaultConnection"
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    
     builder.Services.AddDbContext<InventoryContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlServer(connectionString));
 }
 
 var app = builder.Build();
